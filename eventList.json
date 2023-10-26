@@ -36,6 +36,18 @@
       "startTime": "20:00"
     },
     {
+      "coordinates": {
+        "latitude": 46.0650,
+        "longitude": 14.5150
+      },
+      "title": "Event 123",
+      "description": "This is the third event.",
+      "image": "https://cdn-az.allevents.in/events6/banners/001b87adfffecf44f7d38ac8488a17f5db8f1f6f98cd704bc32cd9952c5576da-rimg-w960-h540-gmir.jpg?v=1678355817",
+      "startDate": "2023-11-12",
+      "location": "Cirkus",
+      "startTime": "20:00"
+    },
+    {
         "coordinates": {
          "latitude": 45.64536234,
          "longitude": 14.54528768
@@ -43,9 +55,9 @@
         "title": "Event 3",
         "description": "This is the third event.",
         "image": "https://hips.hearstapps.com/hmg-prod/images/woman-enjoying-cold-baths-in-a-ice-hole-lapland-royalty-free-image-1678322734.jpg",
-        "startDate": "2023-11-12",
+        "startDate": "2023-12-12",
         "location": "Koga Bar",
-        "startTime": "20:00"
+        "startTime": "2:00"
     },
     {
         "coordinates": {
@@ -56,7 +68,7 @@
         "description": "This is the third event.",
         "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIpKwv8ZE6D6gR4_2oTLfkkwM5dCLTEzcKcKjZkTcXTLFJ4PVCczLgwwwSf-JDJyZIEp4&usqp=CAU",
         "startDate": "2023-11-12",
-        "location": "Žogca Bar",
+        "location:": "Žogca Bar",
         "startTime": "20:00"
       }
   ]

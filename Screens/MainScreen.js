@@ -14,6 +14,8 @@ const MapScreen = () => {
   const [calendarPermission, setCalendarPermission] = useState(false);
   const eventList = require('../eventList.json'); // Import the event list
   const [selectedEvent, setSelectedEvent] = useState(null); // State to store the selected event
+  const [eventsAtSameLocation, setEventsAtSameLocation] = useState([]); // State to store events with the same coordinates
+  const [currentIndex, setCurrentIndex] = useState(0); // Index to track the currently displayed event
 
   useEffect(() => {
     checkCalendarPermission();
@@ -87,8 +89,29 @@ const MapScreen = () => {
   };
 
   const openModal = (event) => {
-    setSelectedEvent(event);
+    const eventsWithSameLocation = eventList.filter(
+      (e) =>
+        e.coordinates.latitude === event.coordinates.latitude &&
+        e.coordinates.longitude === event.coordinates.longitude
+    );
+    setEventsAtSameLocation(eventsWithSameLocation);
+    setCurrentIndex(eventsWithSameLocation.indexOf(event));
     setModalVisible(true);
+    setModalVisible(true);
+  };
+  const nextEvent = () => {
+    if (eventsAtSameLocation.length > 0) {
+      setCurrentIndex((currentIndex + 1) % eventsAtSameLocation.length);
+    }
+  };
+
+  const prevEvent = () => {
+    if (eventsAtSameLocation.length > 0) {
+      setCurrentIndex(
+        (currentIndex - 1 + eventsAtSameLocation.length) %
+          eventsAtSameLocation.length
+      );
+    }
   };
   return (
     <View style={styles.container}>
@@ -133,43 +156,68 @@ const MapScreen = () => {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-      >{selectedEvent && ( // Check if a selected event exists
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Image
-                source={{uri: selectedEvent.image}}
-                style={styles.modalImage}
-              />
-              <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
-              <Text style={styles.modalDetails}>{selectedEvent.location}, {selectedEvent.startDate} ob {selectedEvent.startTime} </Text>
-              <ScrollView style={styles.descriptionScrollView} maxHeight={502}>
-                <Text style={styles.modalDescription}>
-                  {selectedEvent.description}
-                </Text>
-              </ScrollView>
-            </View>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={addToCalendar}
-              >
-                <View style={styles.addbuttonContent}>
-                  <Text style={styles.modalButtonText}>Add to </Text>
-                  <AntDesign name="calendar" size={19} color="white" />
+      >{eventsAtSameLocation.length > 0 && (
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+          {eventsAtSameLocation.length > 1 && (
+                <View style={styles.prevnext}>
+                  <TouchableOpacity
+                    style={styles.prevButton}
+                    onPress={prevEvent}
+                  >
+                    <AntDesign name="left" size={24} color="black"   />
+                  </TouchableOpacity>
+                  <Text style={styles.prevnextText}>Multiple events</Text>
+                  <TouchableOpacity
+                    style={styles.nextButton}
+                    onPress={nextEvent}
+                  >
+                    <AntDesign name="right" size={24} color="black" />
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => {
-                  setSelectedEvent(null); // Clear the selected event
-                  setModalVisible(false);
-                }}
-              >
-                <Text style={styles.modalButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
+              )}
+            <Image
+              source={{ uri: eventsAtSameLocation[currentIndex].image }}
+              style={styles.modalImage}
+            />
+            <Text style={styles.modalTitle}>
+              {eventsAtSameLocation[currentIndex].title}
+            </Text>
+            <Text style={styles.modalDetails}>
+              {eventsAtSameLocation[currentIndex].location},{' '}
+              {eventsAtSameLocation[currentIndex].startDate} ob{' '}
+              {eventsAtSameLocation[currentIndex].startTime}
+            </Text>
+            <ScrollView style={styles.descriptionScrollView} maxHeight={502}>
+              <Text style={styles.modalDescription}>
+                {eventsAtSameLocation[currentIndex].description}
+              </Text>
+            </ScrollView>
           </View>
-        )}
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={addToCalendar}
+            >
+              <View style={styles.addbuttonContent}>
+                <Text style={styles.modalButtonText}>Add to </Text>
+                <AntDesign name="calendar" size={19} color="white" />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => {
+                setEventsAtSameLocation([]); // Clear the list of events with the same coordinates
+                setCurrentIndex(0); // Reset the index
+                setModalVisible(false);
+              }}
+            >
+              <Text style={styles.modalButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
       </Modal>
     </View>
   );
@@ -178,12 +226,6 @@ const MapScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: -5 }, // Adjust the values as needed
-    shadowOpacity: 0.3, // Adjust the opacity as needed
-    shadowRadius: 5, // Adjust the shadow radius as needed
-    elevation: 5, // For Android
-
   },
   map: {
     flex: 1,
@@ -200,13 +242,11 @@ const styles = StyleSheet.create({
     marginBottom:20,
   },
   modalContainer: {
-
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0)',
+    backgroundColor: 'rgba(0, 0, 0, 0.0)',
   },
   modalContent: {
-    marginTop:"20%",
     borderRadius:100,
     flex: 0.85,
     width: "100%",
@@ -263,6 +303,18 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: 'white',
   },
+  prevnext: {
+    width:"100%",
+    padding:10,
+    justifyContent: 'space-between',
+    flexDirection:'row',
+    marginBottom:10,
+  },
+  prevnextText:{
+    fontWeight:'bold',
+    fontSize: 17,
+    color:'black',
+  }
 });
 
 export default MapScreen;
