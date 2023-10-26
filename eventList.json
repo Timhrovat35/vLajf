@@ -1,0 +1,63 @@
+[
+    {
+      "coordinates": {
+        "latitude": 46.0569,
+        "longitude": 14.5058
+      },
+      "title": "Event 1",
+      "description": "This is the first event.",
+      "image":"https://mynight.aktualno.si/wp-content/uploads/sites/4/2023/10/697171945335636.jpeg",
+      "startDate": "2023-10-30",
+      "location": "Cirkus Klub",
+      "startTime": "18:00"
+    },
+    {
+      "coordinates": {
+        "latitude": 46.0600,
+        "longitude": 14.5100
+      },
+      "title": "Event 2",
+      "description": "Lorem ipsum dolor sit amet, consectetur aLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur aLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur aLorem ipsum dolor sit amet, consectetur adipiscing elit",
+      "image": "https://mynight.aktualno.si/wp-content/uploads/sites/4/2023/10/1-64.jpg",
+      "startDate": "2023-11-05",
+      "location": "K4 Klub",
+      "startTime": "19:30"
+    },
+    {
+      "coordinates": {
+        "latitude": 46.0650,
+        "longitude": 14.5150
+      },
+      "title": "Event 3",
+      "description": "This is the third event.",
+      "image": "https://cdn-az.allevents.in/events6/banners/001b87adfffecf44f7d38ac8488a17f5db8f1f6f98cd704bc32cd9952c5576da-rimg-w960-h540-gmir.jpg?v=1678355817",
+      "startDate": "2023-11-12",
+      "location": "Cirkus",
+      "startTime": "20:00"
+    },
+    {
+        "coordinates": {
+         "latitude": 45.64536234,
+         "longitude": 14.54528768
+        },
+        "title": "Event 3",
+        "description": "This is the third event.",
+        "image": "https://hips.hearstapps.com/hmg-prod/images/woman-enjoying-cold-baths-in-a-ice-hole-lapland-royalty-free-image-1678322734.jpg",
+        "startDate": "2023-11-12",
+        "location": "Koga Bar",
+        "startTime": "20:00"
+    },
+    {
+        "coordinates": {
+         "latitude": 45.82650467,
+         "longitude": 14.81474768
+        },
+        "title": "Event 3",
+        "description": "This is the third event.",
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIpKwv8ZE6D6gR4_2oTLfkkwM5dCLTEzcKcKjZkTcXTLFJ4PVCczLgwwwSf-JDJyZIEp4&usqp=CAU",
+        "startDate": "2023-11-12",
+        "location": "Žogca Bar",
+        "startTime": "20:00"
+      }
+  ]
+  
