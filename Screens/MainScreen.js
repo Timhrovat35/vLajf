@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Modal, StyleSheet, Text, TouchableOpacity, View, PermissionsAndroid, ScrollView } from 'react-native';
+import { Image, Modal, StyleSheet, Text, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput } from 'react-native';
 import ReactNativeCalendarEvents from 'react-native-calendar-events';
 import MapView, { Marker } from 'react-native-maps';
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
+import Geolocation from 'react-native-geolocation-service';
 
-
-const customMarkerImage = require('../Images/LatinDanceNight.jpg');
+const Logo = require('../Images/images.png');
 const customMap = require('../customMap.json');
 
 const MapScreen = () => {
@@ -20,7 +21,7 @@ const MapScreen = () => {
   useEffect(() => {
     checkCalendarPermission();
   }, []);
-
+  
    const checkCalendarPermission = async () => {
     try {
       const status = await PermissionsAndroid.check(
@@ -125,7 +126,7 @@ const MapScreen = () => {
         }}
         customMapStyle={customMap}
         onRegionChange={handleRegionChange}
-      >
+      >   
           {eventList.map((event, index) => (
           <Marker
             key={index}
@@ -152,6 +153,36 @@ const MapScreen = () => {
           </Marker>
         ))}
       </MapView>
+      <View style={styles.header}>
+        <View style={styles.headerLine}>
+              <Image
+                source= {require('../Images/images.png')}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 40,
+                }}
+              />
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search"
+          />
+          <TouchableOpacity
+              style={styles.settingButton}
+              //onPress={openSettings}
+          >
+            <AntDesign name="setting" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.datePicker}>
+            <TouchableOpacity
+                      style={styles.datesButton}
+                      //onPress={prevEvent}
+            >
+              <MaterialIcons name="date-range" size={27} color="black" />
+            </TouchableOpacity>
+          </View>
       <Modal
         animationType="slide"
         transparent={true}
@@ -165,14 +196,14 @@ const MapScreen = () => {
                     style={styles.prevButton}
                     onPress={prevEvent}
                   >
-                    <AntDesign name="left" size={24} color="black"   />
+                    <AntDesign name="left" size={29} color="black"   />
                   </TouchableOpacity>
-                  <Text style={styles.prevnextText}>Multiple events</Text>
+                  <MaterialCommunityIcons name="cards" size={29} color="black" />
                   <TouchableOpacity
                     style={styles.nextButton}
                     onPress={nextEvent}
                   >
-                    <AntDesign name="right" size={24} color="black" />
+                    <AntDesign name="right" size={29} color="black" />
                   </TouchableOpacity>
                 </View>
               )}
@@ -226,6 +257,15 @@ const MapScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header:{
+    width:"100%",
+    top:0,
+    //backgroundColor: "rgba(255,255,255, 0.8)",
+    position: 'absolute',
+    borderBottomLeftRadius:30,
+    borderBottomRightRadius:30,
+    height:"13%",
   },
   map: {
     flex: 1,
@@ -314,7 +354,47 @@ const styles = StyleSheet.create({
     fontWeight:'bold',
     fontSize: 17,
     color:'black',
+  },
+  headerLine: {
+    marginHorizontal:"5%",
+    marginTop: "10%",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  searchBar: {
+    backgroundColor: "white", // Set the background color to white
+    borderRadius: 30,
+    padding: 5,
+    flex: 1, // Take up available space, pushing the settings button to the right
+    maxWidth: "60%", // Limit the search bar width to 60% of available space
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  datePicker: {
+    top:"75%",
+    left:20,
+    justifyContent:'center',
+    alignItems:'center',
+    position:'absolute',
+  },
+  datesButton: {
+    justifyContent:'center',
+    alignItems:'center',
+    height: 40,
+    width: 40,
+    borderRadius:25,
+    backgroundColor: "rgba(0,0,0, 0.1)",
+  },
+  settingButton: {
   }
+
 });
 
 export default MapScreen;
