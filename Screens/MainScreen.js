@@ -5,6 +5,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Geolocation from 'react-native-geolocation-service';
+import EventType from '../Components/EventType';
 
 const Logo = require('../Images/images.png');
 const customMap = require('../customMap.json');
@@ -17,6 +18,7 @@ const MapScreen = () => {
   const [selectedEvent, setSelectedEvent] = useState(null); // State to store the selected event
   const [eventsAtSameLocation, setEventsAtSameLocation] = useState([]); // State to store events with the same coordinates
   const [currentIndex, setCurrentIndex] = useState(0); // Index to track the currently displayed event
+  const [selectedType, setSelectedType] = useState('All');
 
   useEffect(() => {
     checkCalendarPermission();
@@ -114,6 +116,12 @@ const MapScreen = () => {
       );
     }
   };
+
+  const handleTypeSelect = (type) => {
+    setSelectedType(type);
+    // You can add additional logic here based on the selected type
+  };
+  
   return (
     <View style={styles.container}>
       <MapView
@@ -127,7 +135,9 @@ const MapScreen = () => {
         customMapStyle={customMap}
         onRegionChange={handleRegionChange}
       >   
-          {eventList.map((event, index) => (
+          {eventList
+          .filter(event => selectedType === 'All' || event.type === selectedType)
+          .map((event, index) => (
           <Marker
             key={index}
             coordinate={event.coordinates} // Replace with the coordinates from your eventList
@@ -183,6 +193,9 @@ const MapScreen = () => {
               <MaterialIcons name="date-range" size={27} color="black" />
             </TouchableOpacity>
           </View>
+      <View style={styles.typePicker}>
+        <EventType onSelect={handleTypeSelect} selectedType={selectedType} />
+      </View>
       <Modal
         animationType="slide"
         transparent={true}
@@ -378,7 +391,14 @@ const styles = StyleSheet.create({
     elevation: 2, // On Android, use elevation for shadow
   },
   datePicker: {
-    top:"75%",
+    top:"62%",
+    left:20,
+    justifyContent:'center',
+    alignItems:'center',
+    position:'absolute',
+  },
+  typePicker: {
+    top: "70%",
     left:20,
     justifyContent:'center',
     alignItems:'center',
