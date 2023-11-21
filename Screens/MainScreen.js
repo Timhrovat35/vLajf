@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Modal, StyleSheet, Text, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput } from 'react-native';
+import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder,Animated,Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback,  } from 'react-native';
 import ReactNativeCalendarEvents from 'react-native-calendar-events';
 import MapView, { Marker } from 'react-native-maps';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
@@ -121,8 +121,13 @@ const MapScreen = () => {
     setSelectedType(type);
     // You can add additional logic here based on the selected type
   };
+
+  const handleContainerPress = () => {
+    Keyboard.dismiss();
+  };
   
   return (
+    <TouchableWithoutFeedback onPress={handleContainerPress}>
     <View style={styles.container}>
       <MapView
         style={styles.map}
@@ -264,6 +269,7 @@ const MapScreen = () => {
       )}
       </Modal>
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 
