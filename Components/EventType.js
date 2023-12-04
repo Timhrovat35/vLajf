@@ -7,8 +7,10 @@ import {
   } from '@expo/vector-icons';
   import Animated, { Easing, useSharedValue, withSpring, useAnimatedStyle,withRepeat } from 'react-native-reanimated';
 import { MotiView } from 'moti';
+import { useTheme } from './ThemeContext';
 
 const EventType = ({ onSelect, selectedType }) => {
+   const { isDarkMode, toggleDarkMode } = useTheme();
     return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -20,7 +22,7 @@ const EventType = ({ onSelect, selectedType }) => {
           animate={{ scale: selectedType === 'All' ? 1.2 : 1 }}
           transition={{ type: 'spring' }}
         >
-          <Text style={styles.buttonText}>All</Text>
+          <MaterialCommunityIcons name="filter-off-outline" size={24} color={selectedType === 'All' ? 'blue' : isDarkMode ? 'white' : 'black'} />
         </MotiView>
       </TouchableOpacity>
       <TouchableOpacity
@@ -32,7 +34,7 @@ const EventType = ({ onSelect, selectedType }) => {
           animate={{ scale: selectedType === 'Sports' ? 1.2 : 1 }}
           transition={{ type: 'spring' }}
         >
-          <Ionicons name="football-sharp" size={24} color={selectedType === 'Sports' ? 'red' : 'black'} />
+          <Ionicons name="football-sharp" size={24} color={selectedType === 'Sports' ? 'blue' : isDarkMode ? 'white' : 'black'} />
         </MotiView>
       </TouchableOpacity>
       <TouchableOpacity
@@ -44,7 +46,7 @@ const EventType = ({ onSelect, selectedType }) => {
           animate={{ scale: selectedType === 'Party' ? 1.2 : 1 }}
           transition={{ type: 'spring' }}
         >
-          <MaterialCommunityIcons name="party-popper" size={24} color={selectedType === 'Party' ? 'red' : 'black'}/>
+          <MaterialCommunityIcons name="party-popper" size={24} color={selectedType === 'Party' ? 'blue' : isDarkMode ? 'white' : 'black'}/>
         </MotiView>
       </TouchableOpacity>
     </View>

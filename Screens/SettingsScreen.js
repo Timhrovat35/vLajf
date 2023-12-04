@@ -4,10 +4,12 @@ import { useNavigation } from '@react-navigation/native';
 import { Header, Icon } from 'react-native-elements';
 import { MotiView, SafeAreaView } from 'moti';
 import { Ionicons, AntDesign, MaterialIcons  } from '@expo/vector-icons'; 
-
+import { Switch } from 'react-native';
+import { useTheme } from '../Components/ThemeContext';
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [selectedView, setSelectedView] = useState('visual'); // Initial selected view
 
   const handleBack = () => {
@@ -20,12 +22,12 @@ const SettingsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{backgroundColor:"white"}}>
-    <View style={styles.header}>
+    <SafeAreaView style={isDarkMode ? styles.darkView : styles.normalView}>
+    <View style={isDarkMode ? styles.darkheader : styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color="black" />
+          <Icon name="arrow-back" size={24} color={ isDarkMode ? 'white' : 'black'} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Home</Text>
+        <Text style={isDarkMode ? styles.darkheaderText : styles.headerText}>Home</Text>
     </View>
     <View style={{flexDirection:'row', height: "100%",marginTop:10}}>
       <View style={{ flexDirection: 'column', padding: 5, height: "100%",marginHorizontal:10, marginTop:20 }}>
@@ -35,7 +37,7 @@ const SettingsScreen = () => {
           animate={{ scale: selectedView === 'visual' ? 1.2 : 1 }}
           transition={{ type: 'spring' }}
         >
-            <MaterialIcons name="design-services" size={26} style={{color: selectedView === 'visual' ? 'blue' : 'black',marginTop:30, marginBottom: 20}} />
+            <MaterialIcons name="design-services" size={26} style={{color: selectedView === 'visual' ? 'blue' : isDarkMode ? 'white' : 'black',marginTop:30, marginBottom: 20}} />
         </MotiView>
         </TouchableOpacity>
 
@@ -45,7 +47,7 @@ const SettingsScreen = () => {
           animate={{ scale: selectedView === 'notification' ? 1.2 : 1 }}
           transition={{ type: 'spring' }}
         >
-            <Ionicons name="notifications-outline" size={26}  style={{color: selectedView === 'notification' ? 'blue' : 'black', marginBottom: 20 }}/>
+            <Ionicons name="notifications-outline" size={26}  style={{color: selectedView === 'notification' ? 'blue' : isDarkMode ? 'white' : 'black', marginBottom: 20 }}/>
         </MotiView>
         </TouchableOpacity>
 
@@ -55,7 +57,7 @@ const SettingsScreen = () => {
           animate={{ scale: selectedView === 'terms' ? 1.2 : 1 }}
           transition={{ type: 'spring' }}
         >
-            <AntDesign name="filetext1" size={26} style={{color: selectedView === 'terms' ? 'blue' : 'black', marginBottom: 12 }} />
+            <AntDesign name="filetext1" size={26} style={{color: selectedView === 'terms' ? 'blue' : isDarkMode ? 'white' : 'black', marginBottom: 12 }} />
         </MotiView>
         </TouchableOpacity>
       </View>
@@ -65,53 +67,109 @@ const SettingsScreen = () => {
       {selectedView === 'notification' && <NotificationView />}
       {selectedView === 'terms' && <TermsView />}
     </View>
-    </SafeAreaView>
+  </ SafeAreaView>
   );
 };
 
-const VisualView = () => (
+
+const VisualView = () => {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+
+  return (
     <View style={styles.contentView}>
-        <Text style={styles.contentHeaderText}>Default settings</Text>
+      <Text style={isDarkMode ? styles.darkcontentHeaderText : styles.contentHeaderText}>Default settings</Text>
       <View style={styles.contentLine} />
+
+      {/* Add the switch for dark mode */}
+      <View style={{flexDirection: "row", width: "100%", alignItems: 'center', paddingLeft: 10}}>
+          <Text style={isDarkMode ? styles.darkswitchtext : styles.switchtext}>Dark Mode</Text>
+          <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
+      </View>
     </View>
-);
+  );
+};
 
-const NotificationView = () => (
+const NotificationView = () => {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+
+  return (
     <View style={styles.contentView}>
-    <Text style={styles.contentHeaderText}>Notifications setttings</Text>
+    <Text style={isDarkMode ? styles.darkcontentHeaderText : styles.contentHeaderText}>Notifications setttings</Text>
     <View style={styles.contentLine} />
   </View>
-);
+  );
+  };
 
-const TermsView = () => (
+const TermsView = () => {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+
+  return (
     <View style={styles.contentView}>
-    <Text style={styles.contentHeaderText}>Terms of use</Text>
+    <Text style={isDarkMode ? styles.darkcontentHeaderText : styles.contentHeaderText}>Terms of use</Text>
     <View style={styles.contentLine} />
   </View>
-);
+  );
+  };
 
 const styles = {
+  darkView:{
+    backgroundColor: "black",
+  },
+  normalView: {
+    backgroundColor: "white",
+  },
     header: {
+      width: "100%",
       paddingTop: 50,
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: 'white', // Set your desired header background color
       padding: 10,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5, // This is for Android
     },
+    darkheader:{
+      width: "100%",
+      paddingTop: 50,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: 'black', // Set your desired header background color
+      padding: 10,
+      shadowColor: "#fff",
+      shadowOffset: {
+        width: 1,
+        height: 4.3,
+      },
+      shadowOpacity: 0.15,
+      shadowRadius: 3.84,
+      elevation: 5, // This is for Android
+    },
+    headerText: { // Set your desired header text color
+      fontSize: 20,
+    }, 
+    darkheaderText: { // Set your desired header text color
+      color: "white",
+      fontSize: 20,
+    }, 
     backButton: {
       marginRight: 10,
     },
-    headerText: {
-      color: 'black', // Set your desired header text color
-      fontSize: 20,
-    }, 
     contentView: {
-      paddingRight: "15%",
         width:"90%",
         alignItems: 'center',
         marginTop: 5,
       },
       contentHeaderText: {
+        fontSize: 15,
+      },
+      darkcontentHeaderText: {
+        color: "white",
         fontSize: 15,
       },
       contentLine: {

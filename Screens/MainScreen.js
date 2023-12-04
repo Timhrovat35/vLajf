@@ -7,9 +7,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Geolocation from 'react-native-geolocation-service';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
 import EventType from '../Components/EventType';
+import { useTheme } from '../Components/ThemeContext';
+
 
 const Logo = require('../Images/images.png');
 const customMap = require('../customMap.json');
+const customMapDark = require('../customMapDark.json')
 
 const MapScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -21,11 +24,13 @@ const MapScreen = () => {
   const [eventsAtSameLocation, setEventsAtSameLocation] = useState([]); // State to store events with the same coordinates
   const [currentIndex, setCurrentIndex] = useState(0); // Index to track the currently displayed event
   const [selectedType, setSelectedType] = useState('All');
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   useEffect(() => {
     checkCalendarPermission();
   }, []);
-  
+
+
    const checkCalendarPermission = async () => {
     try {
       const status = await PermissionsAndroid.check(
@@ -139,7 +144,7 @@ const MapScreen = () => {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-        customMapStyle={customMap}
+        customMapStyle={isDarkMode ? customMapDark : customMap}
         onRegionChange={handleRegionChange}
       >   
           {eventList
@@ -154,7 +159,6 @@ const MapScreen = () => {
               width: imageRadius * 2,
               height: imageRadius * 2,
               borderRadius: imageRadius,
-              backgroundColor: 'red',
               alignItems: 'center',
               justifyContent: 'center',
             }}>
@@ -181,14 +185,14 @@ const MapScreen = () => {
                 }}
               />
           <TextInput
-            style={styles.searchBar}
+            style={isDarkMode ? styles.darksearchBar : styles.searchBar}
             placeholder="Search"
           />
           <TouchableOpacity
               style={styles.settingButton}
               onPress={() => navigation.navigate('SettingsScreen')}
           >
-            <AntDesign name="setting" size={24} color="black" />
+            <AntDesign name="setting" size={24} color={isDarkMode ? "white" : "black"} />
           </TouchableOpacity>
         </View>
       </View>
@@ -197,7 +201,7 @@ const MapScreen = () => {
                       style={styles.datesButton}
                       //onPress={prevEvent}
             >
-              <MaterialIcons name="date-range" size={27} color="black" />
+              <MaterialIcons name="date-range" size={27} color={isDarkMode ? "white" : "black"} />
             </TouchableOpacity>
           </View>
       <View style={styles.typePicker}>
@@ -209,21 +213,21 @@ const MapScreen = () => {
         visible={modalVisible}
       >{eventsAtSameLocation.length > 0 && (
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={isDarkMode ? styles.darkmodalContent : styles.modalContent}>
           {eventsAtSameLocation.length > 1 && (
                 <View style={styles.prevnext}>
                   <TouchableOpacity
                     style={styles.prevButton}
                     onPress={prevEvent}
                   >
-                    <AntDesign name="left" size={29} color="black"   />
+                    <AntDesign name="left" size={29} color={isDarkMode ? "white" : "black"}   />
                   </TouchableOpacity>
-                  <MaterialCommunityIcons name="cards" size={29} color="black" />
+                  <MaterialCommunityIcons name="cards" size={29} color={isDarkMode ? "white" : "black"} />
                   <TouchableOpacity
                     style={styles.nextButton}
                     onPress={nextEvent}
                   >
-                    <AntDesign name="right" size={29} color="black" />
+                    <AntDesign name="right" size={29} color={isDarkMode ? "white" : "black"} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -231,16 +235,16 @@ const MapScreen = () => {
               source={{ uri: eventsAtSameLocation[currentIndex].image }}
               style={styles.modalImage}
             />
-            <Text style={styles.modalTitle}>
+            <Text style={isDarkMode ? styles.darkmodalTitle : styles.modalTitle}>
               {eventsAtSameLocation[currentIndex].title}
             </Text>
-            <Text style={styles.modalDetails}>
+            <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
               {eventsAtSameLocation[currentIndex].location},{' '}
               {eventsAtSameLocation[currentIndex].startDate} ob{' '}
               {eventsAtSameLocation[currentIndex].startTime}
             </Text>
             <ScrollView style={styles.descriptionScrollView} maxHeight={502}>
-              <Text style={styles.modalDescription}>
+              <Text style={isDarkMode ? styles.darkmodalDescription :styles.modalDescription}>
                 {eventsAtSameLocation[currentIndex].description}
               </Text>
             </ScrollView>
@@ -252,7 +256,7 @@ const MapScreen = () => {
             >
               <View style={styles.addbuttonContent}>
                 <Text style={styles.modalButtonText}>Add to </Text>
-                <AntDesign name="calendar" size={19} color="white" />
+                <AntDesign name="calendar" size={19} color={"white"} />
               </View>
             </TouchableOpacity>
 
@@ -307,11 +311,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.0)',
   },
+
   modalContent: {
     borderRadius:100,
     flex: 0.85,
     width: "100%",
     backgroundColor: 'white',
+    borderRadius: 15,
+  },
+  darkmodalContent: {
+    borderRadius:100,
+    flex: 0.85,
+    width: "100%",
+    backgroundColor: 'black',
     borderRadius: 15,
   },
   modalImage: {
@@ -326,12 +338,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
   },
+  darkmodalTitle: {
+    color: "white",
+    paddingLeft:15,
+    fontSize: 25,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
   modalDetails: {
     paddingLeft:15,
     fontSize: 16,
     marginBottom: 5,
   },
+  darkmodalDetails: {
+    color: "white",
+    paddingLeft:15,
+    fontSize: 16,
+    marginBottom: 5,
+  },
   modalDescription: {
+    paddingLeft:15,
+    fontSize: 14,
+    marginVertical: 10,
+  },
+  darkmodalDescription: {
+    color: "white",
     paddingLeft:15,
     fontSize: 14,
     marginVertical: 10,
@@ -384,6 +415,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   searchBar: {
+    backgroundColor: "white", // Set the background color to white
+    borderRadius: 30,
+    padding: 5,
+    flex: 1, // Take up available space, pushing the settings button to the right
+    maxWidth: "60%", // Limit the search bar width to 60% of available space
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  darksearchBar: {
     backgroundColor: "white", // Set the background color to white
     borderRadius: 30,
     padding: 5,
