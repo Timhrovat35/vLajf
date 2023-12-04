@@ -5,6 +5,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Geolocation from 'react-native-geolocation-service';
+import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
 import EventType from '../Components/EventType';
 
 const Logo = require('../Images/images.png');
@@ -13,6 +14,7 @@ const customMap = require('../customMap.json');
 const MapScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [imageRadius, setImageRadius] = useState(16);
+  const navigation = useNavigation(); // Initialize the navigation hook
   const [calendarPermission, setCalendarPermission] = useState(false);
   const eventList = require('../eventList.json'); // Import the event list
   const [selectedEvent, setSelectedEvent] = useState(null); // State to store the selected event
@@ -184,7 +186,7 @@ const MapScreen = () => {
           />
           <TouchableOpacity
               style={styles.settingButton}
-              //onPress={openSettings}
+              onPress={() => navigation.navigate('SettingsScreen')}
           >
             <AntDesign name="setting" size={24} color="black" />
           </TouchableOpacity>
@@ -419,7 +421,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0, 0.1)",
   },
   settingButton: {
-  }
+  },
 
 });
 
