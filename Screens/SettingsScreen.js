@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Header, Icon } from 'react-native-elements';
 import { MotiView, SafeAreaView } from 'moti';
-import { Ionicons, AntDesign, MaterialIcons  } from '@expo/vector-icons'; 
+import { Ionicons, AntDesign, MaterialIcons, FontAwesome  } from '@expo/vector-icons'; 
 import { Switch } from 'react-native';
 import { useTheme } from '../Components/ThemeContext';
 
@@ -79,11 +79,19 @@ const VisualView = () => {
     <View style={styles.contentView}>
       <Text style={isDarkMode ? styles.darkcontentHeaderText : styles.contentHeaderText}>Default settings</Text>
       <View style={styles.contentLine} />
-
       {/* Add the switch for dark mode */}
-      <View style={{flexDirection: "row", width: "100%", alignItems: 'center', paddingLeft: 10}}>
-          <Text style={isDarkMode ? styles.darkswitchtext : styles.switchtext}>Dark Mode</Text>
-          <Switch value={isDarkMode} onValueChange={toggleDarkMode} />
+      <View style={{flexDirection: "row", width: "90%", alignItems: 'center', paddingLeft: 10, justifyContent:'space-between'}}>
+        <View style={{flexDirection:"row",alignItems: 'center'}}>
+          <Ionicons name="moon" size={24} color={isDarkMode ? '#FFC75F' : '#C1C1C1'} style={{marginRight: 10,}} />
+          <Text style={isDarkMode ? styles.darkswitchtext : styles.switchtext}>Dark mode</Text>
+        </View>
+          <Switch
+          style={{marginRight:10}}
+          value={isDarkMode}
+          onValueChange={toggleDarkMode}
+          thumbColor={isDarkMode ? 'white' : '#C1C1C1'}
+          trackColor={{ false: 'gray', true: 'lightgray' }}
+           />
       </View>
     </View>
   );
@@ -178,8 +186,9 @@ const styles = {
         backgroundColor: 'blue',
         marginTop: 10,
       },
-
-
+      darkswitchtext:{
+        color: "white",
+      },
   };
 
 export default SettingsScreen;

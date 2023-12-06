@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder,Animated,Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback,  } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder ,Animated, Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback,  } from 'react-native';
 import ReactNativeCalendarEvents from 'react-native-calendar-events';
 import MapView, { Marker } from 'react-native-maps';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons'; 
+import { AntDesign, Entypo, MaterialIcons } from '@expo/vector-icons'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Geolocation from 'react-native-geolocation-service';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
 import EventType from '../Components/EventType';
 import { useTheme } from '../Components/ThemeContext';
+import { MotiView } from 'moti';
 
 
 const Logo = require('../Images/images.png');
@@ -25,11 +26,33 @@ const MapScreen = () => {
   const [currentIndex, setCurrentIndex] = useState(0); // Index to track the currently displayed event
   const [selectedType, setSelectedType] = useState('All');
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showEventTypePicker, setShowEventTypePicker] = useState(false);
+  const datePickerY = useRef(new Animated.Value(0)).current;
+  const eventTypePickerY = useRef(new Animated.Value(0)).current;
+
+  const toggleButtons = () => {
+    setShowDatePicker(!showDatePicker);
+    setShowEventTypePicker(!showEventTypePicker);
+  };
 
   useEffect(() => {
     checkCalendarPermission();
-  }, []);
+    Animated.timing(datePickerY, {
+      toValue: showDatePicker ? 0 : 70,
+      duration: 200,
+      easing: Easing.ease,
+      useNativeDriver: false,
+    }).start();
 
+    // Animate eventTypePicker when showDatePicker changes
+    Animated.timing(eventTypePickerY, {
+      toValue: showDatePicker ? 0 : 70,
+      duration: 200,
+      easing: Easing.ease,
+      useNativeDriver: false,
+    }).start();
+  }, [showDatePicker]);
 
    const checkCalendarPermission = async () => {
     try {
@@ -196,17 +219,44 @@ const MapScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.datePicker}>
-            <TouchableOpacity
-                      style={styles.datesButton}
-                      //onPress={prevEvent}
-            >
-              <MaterialIcons name="date-range" size={27} color={isDarkMode ? "white" : "black"} />
-            </TouchableOpacity>
-          </View>
-      <View style={styles.typePicker}>
-        <EventType onSelect={handleTypeSelect} selectedType={selectedType} />
+      <View style={styles.toggleButton}>
+        <TouchableOpacity
+          onPress={toggleButtons}
+        >
+          <Entypo name={showDatePicker ? 'chevron-down' : 'chevron-up'} size={40} color={isDarkMode ? 'white' : 'black'} />
+        </TouchableOpacity>
       </View>
+        {showDatePicker && (
+          <>          
+          <Animated.View
+          style={[
+            styles.datePicker,
+            {
+              transform: [{ translateY: datePickerY }],
+            },
+          ]}
+          >
+            <TouchableOpacity
+              style={styles.datesButton}
+              /* Add your date picker logic here */
+            >
+              <MaterialIcons name="date-range" size={27} color={isDarkMode ? 'white' : 'black'} />
+            </TouchableOpacity>
+          </Animated.View>
+          </>
+        )}
+        {showEventTypePicker && (
+          <Animated.View
+          style={[
+            styles.typePicker,
+            {
+              transform: [{ translateY: eventTypePickerY }],
+            },
+          ]}
+        >
+            <EventType onSelect={handleTypeSelect} selectedType={selectedType} />
+          </Animated.View>
+        )}
       <Modal
         animationType="slide"
         transparent={true}
@@ -445,14 +495,14 @@ const styles = StyleSheet.create({
     elevation: 2, // On Android, use elevation for shadow
   },
   datePicker: {
-    top:"62%",
+    top:"60%",
     left:20,
     justifyContent:'center',
     alignItems:'center',
     position:'absolute',
   },
   typePicker: {
-    top: "70%",
+    top: "67%",
     left:20,
     justifyContent:'center',
     alignItems:'center',
@@ -467,6 +517,25 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0, 0.1)",
   },
   settingButton: {
+  },
+  toggleButton: {
+    top: "86%",
+    left:20,
+    position:'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 40,
+    width: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0, 0.1)',
+  },
+  typeText: {
+    left:"40%",
+    right:"40%",
+    top:"12%",
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
 });
