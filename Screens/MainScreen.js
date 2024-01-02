@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder ,Animated, Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback,  } from 'react-native';
 import ReactNativeCalendarEvents from 'react-native-calendar-events';
 import MapView, { Marker } from 'react-native-maps';
-import { AntDesign, Entypo, MaterialIcons } from '@expo/vector-icons'; 
+import { AntDesign, Entypo, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Geolocation from 'react-native-geolocation-service';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
@@ -264,7 +264,11 @@ const MapScreen = () => {
       >{eventsAtSameLocation.length > 0 && (
         <View style={styles.modalContainer}>
           <View style={isDarkMode ? styles.darkmodalContent : styles.modalContent}>
-          {eventsAtSameLocation.length > 1 && (
+            <Image
+              source={{ uri: eventsAtSameLocation[currentIndex].image }}
+              style={styles.modalImage}
+            />
+            {eventsAtSameLocation.length > 1 && (
                 <View style={styles.prevnext}>
                   <TouchableOpacity
                     style={styles.prevButton}
@@ -281,45 +285,56 @@ const MapScreen = () => {
                   </TouchableOpacity>
                 </View>
               )}
-            <Image
-              source={{ uri: eventsAtSameLocation[currentIndex].image }}
-              style={styles.modalImage}
-            />
             <Text style={isDarkMode ? styles.darkmodalTitle : styles.modalTitle}>
               {eventsAtSameLocation[currentIndex].title}
             </Text>
-            <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
-              {eventsAtSameLocation[currentIndex].location},{' '}
-              {eventsAtSameLocation[currentIndex].startDate} ob{' '}
-              {eventsAtSameLocation[currentIndex].startTime}
-            </Text>
-            <ScrollView style={styles.descriptionScrollView} maxHeight={502}>
+            <View style={{flexDirection:'row', alignItems:'center', top:10, justifyContent:'space-between'}}>
+              <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
+                <Entypo name="location" size={25} color={isDarkMode ? "white" : "black"} />
+                <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
+                  {eventsAtSameLocation[currentIndex].location}{' '}
+                </Text>
+              </View>
+              <View style={isDarkMode ? styles.darkline : styles.lightline } />
+                <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
+                  <Entypo name="calendar" size={25} color={isDarkMode ? "white" : "black"} />
+                  <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
+                  {eventsAtSameLocation[currentIndex].startDate}{' '}
+                  </Text>
+                </View>
+                <View style={isDarkMode ? styles.darkline : styles.lightline } />
+                <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
+                  <Entypo name="clock" size={25} color={isDarkMode ? "white" : "black"} />
+                  <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
+                    {eventsAtSameLocation[currentIndex].startTime}{' '}
+                  </Text>
+                </View>
+            </View>
+            <ScrollView style={styles.descriptionScrollView} maxHeight={115}>
               <Text style={isDarkMode ? styles.darkmodalDescription :styles.modalDescription}>
                 {eventsAtSameLocation[currentIndex].description}
               </Text>
             </ScrollView>
+            <View style={styles.modalButtons}>
+            <TouchableOpacity
+                style={isDarkMode ? styles.darkcloseButton : styles.closeButton}
+                onPress={() => {
+                  setEventsAtSameLocation([]); // Clear the list of events with the same coordinates
+                  setCurrentIndex(0); // Reset the index
+                  setModalVisible(false);
+                }}
+              >
+              <Entypo name="chevron-left" size={35} color={isDarkMode ? "white" : "black"} />
+            </TouchableOpacity>
+              <TouchableOpacity
+                style={isDarkMode ? styles.darkaddButton : styles.addButton}
+                onPress={addToCalendar}
+              >
+                <View style={styles.addbuttonContent}>
+                  <FontAwesome5 name="calendar-plus" size={27} color={isDarkMode ? "white" : "black"} />
+                </View>
+              </TouchableOpacity>
           </View>
-          <View style={styles.modalButtons}>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={addToCalendar}
-            >
-              <View style={styles.addbuttonContent}>
-                <Text style={styles.modalButtonText}>Add to </Text>
-                <AntDesign name="calendar" size={19} color={"white"} />
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                setEventsAtSameLocation([]); // Clear the list of events with the same coordinates
-                setCurrentIndex(0); // Reset the index
-                setModalVisible(false);
-              }}
-            >
-              <Text style={styles.modalButtonText}>Close</Text>
-            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -351,10 +366,9 @@ const styles = StyleSheet.create({
     borderRadius: 16.11597260646612,
   },
   descriptionScrollView: {
-    maxHeight: 502, // Set the maximum height for the ScrollView
+    marginTop:10,
     padding: 10, // Add padding for better readability
     borderRadius: 5, // Add some border radius for style
-    marginBottom:20,
   },
   modalContainer: {
     flex: 1,
@@ -364,14 +378,14 @@ const styles = StyleSheet.create({
 
   modalContent: {
     borderRadius:100,
-    flex: 0.85,
+    flex: 0.96,
     width: "100%",
     backgroundColor: 'white',
     borderRadius: 15,
   },
   darkmodalContent: {
     borderRadius:100,
-    flex: 0.85,
+    flex: 0.96,
     width: "100%",
     backgroundColor: 'black',
     borderRadius: 15,
@@ -379,32 +393,35 @@ const styles = StyleSheet.create({
   modalImage: {
     borderTopLeftRadius:15,
     borderTopRightRadius:15,
-    width: "100%",
-    height: "40%",
+    width:"100%",
+    height:"60%",
+    resizeMode: 'cover'
   },
   modalTitle: {
     paddingLeft:15,
     fontSize: 25,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 5,
   },
   darkmodalTitle: {
     color: "white",
     paddingLeft:15,
     fontSize: 25,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 5,
   },
   modalDetails: {
     paddingLeft:15,
     fontSize: 16,
     marginBottom: 5,
+    fontWeight:"600"
   },
   darkmodalDetails: {
     color: "white",
     paddingLeft:15,
     fontSize: 16,
     marginBottom: 5,
+    fontWeight:"600"
   },
   modalDescription: {
     paddingLeft:15,
@@ -418,28 +435,40 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   modalButtons: {
+    marginTop:14,
     width:"75%",
     flexDirection: 'row',
     justifyContent:'space-between',
-    marginVertical: 10,
+    alignSelf:'center',
   },
   addButton: {
-    backgroundColor: '#8ACB88',
-    padding: 10,
+    backgroundColor: "rgba(0,0,0, 0.1)",
     height:40,
-    borderRadius: 5,
-    width: 90,
+    borderRadius: 40,
+    width: 50,
     alignItems: 'center',
-    justifyContent:'space-between',
-  },
-  addbuttonContent:{
-    flexDirection: 'row',
+    justifyContent:'center',
   },
   closeButton: {
-    backgroundColor: '#575761',
-    padding: 10,
-    borderRadius: 5,
-    width: 90,
+    backgroundColor: "rgba(0,0,0, 0.1)",
+    justifyContent:'center',
+    borderRadius: 25,
+    width: 50,
+    alignItems: 'center',
+  },
+  darkaddButton: {
+    backgroundColor: "rgba(255,255,255, 0.1)",
+    height:40,
+    borderRadius: 40,
+    width: 50,
+    alignItems: 'center',
+    justifyContent:'center',
+  },
+  darkcloseButton: {
+    backgroundColor: "rgba(255,255,255, 0.1)",
+    justifyContent:'center',
+    borderRadius: 25,
+    width: 50,
     alignItems: 'center',
   },
   modalButtonText: {
@@ -447,10 +476,12 @@ const styles = StyleSheet.create({
   },
   prevnext: {
     width:"100%",
+    position:'absolute',
     padding:10,
+    paddingBottom:0,
     justifyContent: 'space-between',
     flexDirection:'row',
-    marginBottom:10,
+    marginBottom:5,
   },
   prevnextText:{
     fontWeight:'bold',
