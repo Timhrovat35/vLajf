@@ -9,7 +9,11 @@ import { useNavigation } from '@react-navigation/native'; // Import the useNavig
 import EventType from '../Components/EventType';
 import { useTheme } from '../Components/ThemeContext';
 import { MotiView } from 'moti';
-
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import { firebaseConfig }from "../firebaseConfig";
+import { collection, addDoc, getDocs } from "firebase/firestore"; 
+import { db } from '../firebaseConfig';
 
 const Logo = require('../Images/images.png');
 const customMap = require('../customMap.json');
@@ -21,6 +25,7 @@ const MapScreen = () => {
   const navigation = useNavigation(); // Initialize the navigation hook
   const [calendarPermission, setCalendarPermission] = useState(false);
   const eventList = require('../eventList.json'); // Import the event list
+  const [eventsFromDb, setEventsFromDb] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null); // State to store the selected event
   const [eventsAtSameLocation, setEventsAtSameLocation] = useState([]); // State to store events with the same coordinates
   const [currentIndex, setCurrentIndex] = useState(0); // Index to track the currently displayed event
@@ -35,7 +40,18 @@ const MapScreen = () => {
     setShowDatePicker(!showDatePicker);
     setShowEventTypePicker(!showEventTypePicker);
   };
+  const getDateString = (datetime) => {
+    const day = datetime.getDate().toString().padStart(2, '0');
+    const month = (datetime.getMonth() + 1).toString().padStart(2, '0'); // Note: Month is zero-based
+    const year = datetime.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
+  const getTimeString = (datetime) => {
+    const hours = datetime.getHours().toString().padStart(2, '0');
+    const minutes = datetime.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
   useEffect(() => {
     checkCalendarPermission();
     Animated.timing(datePickerY, {
@@ -53,7 +69,22 @@ const MapScreen = () => {
       useNativeDriver: false,
     }).start();
   }, [showDatePicker]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'Events'));
+        const eventsData = [];
+        querySnapshot.forEach((doc) => {
+          eventsData.push(doc.data());
+        });
+        setEventsFromDb(eventsData);
+      } catch (error) {
+        console.error('Error fetching events from the database:', error);
+      }
+    };
 
+    fetchData();
+  }, []);
    const checkCalendarPermission = async () => {
     try {
       const status = await PermissionsAndroid.check(
@@ -122,7 +153,7 @@ const MapScreen = () => {
   };
 
   const openModal = (event) => {
-    const eventsWithSameLocation = eventList.filter(
+    const eventsWithSameLocation = eventsFromDb.filter(
       (e) =>
         e.coordinates.latitude === event.coordinates.latitude &&
         e.coordinates.longitude === event.coordinates.longitude
@@ -132,6 +163,21 @@ const MapScreen = () => {
     setModalVisible(true);
     setModalVisible(true);
   };
+  /**const addData = async () => {
+    console.log("dodajam")
+    try {
+      // Use await inside the async function
+      const docRef = await addDoc(collection(db, 'avents'), {
+        first: 'Ada',
+        last: 'Lovelace',
+        born: 1815,
+      });
+  
+      console.log('Document written with ID: ', docRef.id);
+    } catch (error) {
+      console.error('Error adding document: ', error);
+    }
+  };*/
   const nextEvent = () => {
     if (eventsAtSameLocation.length > 0) {
       setCurrentIndex((currentIndex + 1) % eventsAtSameLocation.length);
@@ -170,12 +216,12 @@ const MapScreen = () => {
         customMapStyle={isDarkMode ? customMapDark : customMap}
         onRegionChange={handleRegionChange}
       >   
-          {eventList
+          {eventsFromDb
           .filter(event => selectedType === 'All' || event.type === selectedType)
           .map((event, index) => (
           <Marker
             key={index}
-            coordinate={event.coordinates} // Replace with the coordinates from your eventList
+            coordinate={{ latitude: event.coordinates.latitude, longitude: event.coordinates.longitude }}
             onPress={() => openModal(event)}
           >
             <View style={{
@@ -299,14 +345,14 @@ const MapScreen = () => {
                 <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
                   <Entypo name="calendar" size={25} color={isDarkMode ? "white" : "black"} />
                   <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
-                  {eventsAtSameLocation[currentIndex].startDate}{' '}
+                  {getDateString(eventsAtSameLocation[currentIndex].datetime.toDate())}{' '}
                   </Text>
                 </View>
                 <View style={isDarkMode ? styles.darkline : styles.lightline } />
                 <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
                   <Entypo name="clock" size={25} color={isDarkMode ? "white" : "black"} />
                   <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
-                    {eventsAtSameLocation[currentIndex].startTime}{' '}
+                  {getTimeString(eventsAtSameLocation[currentIndex].datetime.toDate())}{' '}
                   </Text>
                 </View>
             </View>
