@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder ,Animated, Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback,  } from 'react-native';
 import ReactNativeCalendarEvents from 'react-native-calendar-events';
 import MapView, { Marker } from 'react-native-maps';
-import { AntDesign, Entypo, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'; 
+import { AntDesign, Entypo, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Geolocation from 'react-native-geolocation-service';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
@@ -24,7 +24,6 @@ const MapScreen = () => {
   const [imageRadius, setImageRadius] = useState(16);
   const navigation = useNavigation(); // Initialize the navigation hook
   const [calendarPermission, setCalendarPermission] = useState(false);
-  const eventList = require('../eventList.json'); // Import the event list
   const [eventsFromDb, setEventsFromDb] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null); // State to store the selected event
   const [eventsAtSameLocation, setEventsAtSameLocation] = useState([]); // State to store events with the same coordinates
@@ -35,6 +34,8 @@ const MapScreen = () => {
   const [showEventTypePicker, setShowEventTypePicker] = useState(false);
   const datePickerY = useRef(new Animated.Value(0)).current;
   const eventTypePickerY = useRef(new Animated.Value(0)).current;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
   const toggleButtons = () => {
     setShowDatePicker(!showDatePicker);
@@ -107,6 +108,14 @@ const MapScreen = () => {
     } catch (err) {
       console.error('Error checking calendar permission:', err);
     }
+  };
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    // Filter events based on the search query
+    const filtered = eventsFromDb.filter((event) =>
+      event.title.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredEvents(filtered);
   };
 
   const handleRegionChange = (newRegion) => {
@@ -256,6 +265,8 @@ const MapScreen = () => {
           <TextInput
             style={isDarkMode ? styles.darksearchBar : styles.searchBar}
             placeholder="Search"
+            value={searchQuery}
+            onChangeText={handleSearch}
           />
           <TouchableOpacity
               style={styles.settingButton}
@@ -291,6 +302,53 @@ const MapScreen = () => {
           </Animated.View>
           </>
         )}
+        {searchQuery !== '' && (
+        <View style={styles.searchResultView}>
+          {filteredEvents.length > 0 ? (
+            <ScrollView
+              style={isDarkMode ? styles.darksearchResults : styles.searchResults}
+              maxHeight={170}
+            >
+              {filteredEvents.map((event) => (
+                <TouchableOpacity
+                  key={event.id}
+                  onPress={() => openModal(event)}
+                  style={styles.searchline}
+                > 
+                  <Image
+                    source={{ uri: event.image }}
+                    style={styles.searchImage}
+                  />
+                  <View>
+                    <Text style={styles.searchResultText}>
+                      {event.title}
+                    </Text>
+                    <View style={{flexDirection:'row'}}>
+                      <Text style={styles.searchDetails}>
+                        {getDateString(event.datetime.toDate())}{', '}
+                      </Text>
+                      <Text style={styles.searchDetails}>
+                        {event.location}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={ isDarkMode ? styles.darknoEventsText : styles.noEventsText}>No events found.</Text>
+          )}
+          <TouchableOpacity
+            style={styles.closeResults}
+            onPress={() => {
+              setSearchQuery(''); // Set searchQuery to an empty string
+              prevEvent(); // Call prevEvent function
+            }}
+          >
+            <AntDesign name="closecircle" size={29} color={"white"} />
+          </TouchableOpacity>
+        </View>
+      )}
         {showEventTypePicker && (
           <Animated.View
           style={[
@@ -570,6 +628,117 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2, // Adjust the shadow opacity as needed
     shadowRadius: 2,
     elevation: 2, // On Android, use elevation for shadow
+  },
+  searchResultView:{
+    position:'absolute',
+    marginTop:"20%",
+    backgroundColor:"transparent",
+    marginLeft:"15%",
+    width: "70%",
+    alignContent:'center',
+  },
+  searchImage:{
+    marginRight:15,
+    width:50,
+    height:50,
+    borderTopLeftRadius:10,
+    borderBottomLeftRadius:10,
+  },
+  searchline:{
+    flexDirection:'row', 
+    alignItems:'center',
+    width: "90%",
+    marginLeft: "5%",
+    marginTop:"5%",
+    backgroundColor: "white",
+    borderRadius:10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  darksearchline:{
+    flexDirection:'row', 
+    alignItems:'center',
+    width: "90%",
+    marginLeft: "5%",
+    marginTop:"5%",
+    backgroundColor: "black",
+    borderRadius:10,
+    shadowColor: "#fff",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  searchResultText:{
+    fontSize:17,
+    fontWeight: 'bold'
+  },
+  darksearchResultText:{
+    fontSize:17,
+    fontWeight: 'bold',
+    color:"white",
+  },
+  closeResults:{
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    alignSelf:'center',
+    backgroundColor:"black",
+    borderRadius:20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  darkcloseResults:{
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    alignSelf:'center',
+    backgroundColor:"white",
+    borderRadius:30,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  noEventsText:{
+    fontSize:16,
+    fontWeight:'bold',
+    marginTop:"5%",
+    marginBottom:"3%",
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    alignSelf:'center',
+  },
+  darknoEventsText:{
+    color:"white",
+    fontSize:16,
+    fontWeight:'bold',
+    marginTop:"5%",
+    marginBottom:"3%",
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    alignSelf:'center',
   },
   datePicker: {
     top:"60%",
