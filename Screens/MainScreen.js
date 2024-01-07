@@ -2,14 +2,18 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder ,Animated, Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback,  } from 'react-native';
 import ReactNativeCalendarEvents from 'react-native-calendar-events';
 import MapView, { Marker } from 'react-native-maps';
-import { AntDesign, Entypo, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'; 
+import { AntDesign, Entypo, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Geolocation from 'react-native-geolocation-service';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
 import EventType from '../Components/EventType';
 import { useTheme } from '../Components/ThemeContext';
 import { MotiView } from 'moti';
-
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import { firebaseConfig }from "../firebaseConfig";
+import { collection, addDoc, getDocs } from "firebase/firestore"; 
+import { db } from '../firebaseConfig';
 
 const Logo = require('../Images/images.png');
 const customMap = require('../customMap.json');
@@ -20,7 +24,7 @@ const MapScreen = () => {
   const [imageRadius, setImageRadius] = useState(16);
   const navigation = useNavigation(); // Initialize the navigation hook
   const [calendarPermission, setCalendarPermission] = useState(false);
-  const eventList = require('../eventList.json'); // Import the event list
+  const [eventsFromDb, setEventsFromDb] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null); // State to store the selected event
   const [eventsAtSameLocation, setEventsAtSameLocation] = useState([]); // State to store events with the same coordinates
   const [currentIndex, setCurrentIndex] = useState(0); // Index to track the currently displayed event
@@ -30,12 +34,25 @@ const MapScreen = () => {
   const [showEventTypePicker, setShowEventTypePicker] = useState(false);
   const datePickerY = useRef(new Animated.Value(0)).current;
   const eventTypePickerY = useRef(new Animated.Value(0)).current;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
   const toggleButtons = () => {
     setShowDatePicker(!showDatePicker);
     setShowEventTypePicker(!showEventTypePicker);
   };
+  const getDateString = (datetime) => {
+    const day = datetime.getDate().toString().padStart(2, '0');
+    const month = (datetime.getMonth() + 1).toString().padStart(2, '0'); // Note: Month is zero-based
+    const year = datetime.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
+  const getTimeString = (datetime) => {
+    const hours = datetime.getHours().toString().padStart(2, '0');
+    const minutes = datetime.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
   useEffect(() => {
     checkCalendarPermission();
     Animated.timing(datePickerY, {
@@ -53,7 +70,22 @@ const MapScreen = () => {
       useNativeDriver: false,
     }).start();
   }, [showDatePicker]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'Events'));
+        const eventsData = [];
+        querySnapshot.forEach((doc) => {
+          eventsData.push(doc.data());
+        });
+        setEventsFromDb(eventsData);
+      } catch (error) {
+        console.error('Error fetching events from the database:', error);
+      }
+    };
 
+    fetchData();
+  }, []);
    const checkCalendarPermission = async () => {
     try {
       const status = await PermissionsAndroid.check(
@@ -76,6 +108,14 @@ const MapScreen = () => {
     } catch (err) {
       console.error('Error checking calendar permission:', err);
     }
+  };
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    // Filter events based on the search query
+    const filtered = eventsFromDb.filter((event) =>
+      event.title.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredEvents(filtered);
   };
 
   const handleRegionChange = (newRegion) => {
@@ -122,7 +162,7 @@ const MapScreen = () => {
   };
 
   const openModal = (event) => {
-    const eventsWithSameLocation = eventList.filter(
+    const eventsWithSameLocation = eventsFromDb.filter(
       (e) =>
         e.coordinates.latitude === event.coordinates.latitude &&
         e.coordinates.longitude === event.coordinates.longitude
@@ -132,6 +172,21 @@ const MapScreen = () => {
     setModalVisible(true);
     setModalVisible(true);
   };
+  /**const addData = async () => {
+    console.log("dodajam")
+    try {
+      // Use await inside the async function
+      const docRef = await addDoc(collection(db, 'avents'), {
+        first: 'Ada',
+        last: 'Lovelace',
+        born: 1815,
+      });
+  
+      console.log('Document written with ID: ', docRef.id);
+    } catch (error) {
+      console.error('Error adding document: ', error);
+    }
+  };*/
   const nextEvent = () => {
     if (eventsAtSameLocation.length > 0) {
       setCurrentIndex((currentIndex + 1) % eventsAtSameLocation.length);
@@ -170,12 +225,12 @@ const MapScreen = () => {
         customMapStyle={isDarkMode ? customMapDark : customMap}
         onRegionChange={handleRegionChange}
       >   
-          {eventList
+          {eventsFromDb
           .filter(event => selectedType === 'All' || event.type === selectedType)
           .map((event, index) => (
           <Marker
             key={index}
-            coordinate={event.coordinates} // Replace with the coordinates from your eventList
+            coordinate={{ latitude: event.coordinates.latitude, longitude: event.coordinates.longitude }}
             onPress={() => openModal(event)}
           >
             <View style={{
@@ -210,6 +265,8 @@ const MapScreen = () => {
           <TextInput
             style={isDarkMode ? styles.darksearchBar : styles.searchBar}
             placeholder="Search"
+            value={searchQuery}
+            onChangeText={handleSearch}
           />
           <TouchableOpacity
               style={styles.settingButton}
@@ -245,6 +302,53 @@ const MapScreen = () => {
           </Animated.View>
           </>
         )}
+        {searchQuery !== '' && (
+        <View style={styles.searchResultView}>
+          {filteredEvents.length > 0 ? (
+            <ScrollView
+              style={isDarkMode ? styles.darksearchResults : styles.searchResults}
+              maxHeight={170}
+            >
+              {filteredEvents.map((event) => (
+                <TouchableOpacity
+                  key={event.id}
+                  onPress={() => openModal(event)}
+                  style={styles.searchline}
+                > 
+                  <Image
+                    source={{ uri: event.image }}
+                    style={styles.searchImage}
+                  />
+                  <View>
+                    <Text style={styles.searchResultText}>
+                      {event.title}
+                    </Text>
+                    <View style={{flexDirection:'row'}}>
+                      <Text style={styles.searchDetails}>
+                        {getDateString(event.datetime.toDate())}{', '}
+                      </Text>
+                      <Text style={styles.searchDetails}>
+                        {event.location}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={ isDarkMode ? styles.darknoEventsText : styles.noEventsText}>No events found.</Text>
+          )}
+          <TouchableOpacity
+            style={styles.closeResults}
+            onPress={() => {
+              setSearchQuery(''); // Set searchQuery to an empty string
+              prevEvent(); // Call prevEvent function
+            }}
+          >
+            <AntDesign name="closecircle" size={29} color={"white"} />
+          </TouchableOpacity>
+        </View>
+      )}
         {showEventTypePicker && (
           <Animated.View
           style={[
@@ -299,14 +403,14 @@ const MapScreen = () => {
                 <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
                   <Entypo name="calendar" size={25} color={isDarkMode ? "white" : "black"} />
                   <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
-                  {eventsAtSameLocation[currentIndex].startDate}{' '}
+                  {getDateString(eventsAtSameLocation[currentIndex].datetime.toDate())}{' '}
                   </Text>
                 </View>
                 <View style={isDarkMode ? styles.darkline : styles.lightline } />
                 <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
                   <Entypo name="clock" size={25} color={isDarkMode ? "white" : "black"} />
                   <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
-                    {eventsAtSameLocation[currentIndex].startTime}{' '}
+                  {getTimeString(eventsAtSameLocation[currentIndex].datetime.toDate())}{' '}
                   </Text>
                 </View>
             </View>
@@ -524,6 +628,117 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2, // Adjust the shadow opacity as needed
     shadowRadius: 2,
     elevation: 2, // On Android, use elevation for shadow
+  },
+  searchResultView:{
+    position:'absolute',
+    marginTop:"20%",
+    backgroundColor:"transparent",
+    marginLeft:"15%",
+    width: "70%",
+    alignContent:'center',
+  },
+  searchImage:{
+    marginRight:15,
+    width:50,
+    height:50,
+    borderTopLeftRadius:10,
+    borderBottomLeftRadius:10,
+  },
+  searchline:{
+    flexDirection:'row', 
+    alignItems:'center',
+    width: "90%",
+    marginLeft: "5%",
+    marginTop:"5%",
+    backgroundColor: "white",
+    borderRadius:10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  darksearchline:{
+    flexDirection:'row', 
+    alignItems:'center',
+    width: "90%",
+    marginLeft: "5%",
+    marginTop:"5%",
+    backgroundColor: "black",
+    borderRadius:10,
+    shadowColor: "#fff",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  searchResultText:{
+    fontSize:17,
+    fontWeight: 'bold'
+  },
+  darksearchResultText:{
+    fontSize:17,
+    fontWeight: 'bold',
+    color:"white",
+  },
+  closeResults:{
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    alignSelf:'center',
+    backgroundColor:"black",
+    borderRadius:20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  darkcloseResults:{
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    alignSelf:'center',
+    backgroundColor:"white",
+    borderRadius:30,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2, // Adjust the shadow opacity as needed
+    shadowRadius: 2,
+    elevation: 2, // On Android, use elevation for shadow
+  },
+  noEventsText:{
+    fontSize:16,
+    fontWeight:'bold',
+    marginTop:"5%",
+    marginBottom:"3%",
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    alignSelf:'center',
+  },
+  darknoEventsText:{
+    color:"white",
+    fontSize:16,
+    fontWeight:'bold',
+    marginTop:"5%",
+    marginBottom:"3%",
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    alignSelf:'center',
   },
   datePicker: {
     top:"60%",

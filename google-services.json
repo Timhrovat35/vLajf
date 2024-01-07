@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "410944438182",
+    "project_id": "vlajf-ad3b4",
+    "storage_bucket": "vlajf-ad3b4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410944438182:android:55dc90e5021648f9e41967",
+        "android_client_info": {
+          "package_name": "host.exp.exponent"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmiK82rS-JFqNJlM24Yn2mRVmfKmh-l4o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
