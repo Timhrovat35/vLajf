@@ -57,7 +57,7 @@ const MapScreen = () => {
    const checkCalendarPermission = async () => {
     try {
       const status = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.READ_CALENDAR
+        PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
       );
 
       setCalendarPermission(status === PermissionsAndroid.RESULTS.GRANTED);
@@ -65,7 +65,7 @@ const MapScreen = () => {
       if (status !== PermissionsAndroid.RESULTS.GRANTED) {
         // Permission is not granted, request it
         const permissionStatus = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_CALENDAR
+          PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
         );
 
         if (permissionStatus === PermissionsAndroid.RESULTS.GRANTED) {
