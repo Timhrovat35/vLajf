@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder ,Animated, Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback,  } from 'react-native';
+import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder ,Animated, Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback, useColorScheme,  } from 'react-native';
 import ReactNativeCalendarEvents from 'react-native-calendar-events';
 import MapView, { Marker } from 'react-native-maps';
 import { AntDesign, Entypo, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'; 
@@ -14,6 +14,8 @@ import 'firebase/firestore';
 import { firebaseConfig }from "../firebaseConfig";
 import { collection, addDoc, getDocs } from "firebase/firestore"; 
 import { db } from '../firebaseConfig';
+import {LinearGradient} from 'expo-linear-gradient';
+
 
 const Logo = require('../Images/images.png');
 const customMap = require('../customMap.json');
@@ -36,6 +38,8 @@ const MapScreen = () => {
   const eventTypePickerY = useRef(new Animated.Value(0)).current;
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
+  const gradientColors = isDarkMode ? ['black', 'transparent'] : ['white', 'transparent'];
+
 
   const toggleButtons = () => {
     setShowDatePicker(!showDatePicker);
@@ -134,25 +138,25 @@ const MapScreen = () => {
     setImageRadius(newImageRadius);
   };
 
-  const addToCalendar = async () => {
+  const addToCalendar = async (event) => {
     if (!calendarPermission) {
       console.error('Calendar permission not granted.');
       return;
     }
   
     try {
-      const startDate = new Date().getFullYear(); // Replace with your event start date
-      const endDate = new Date().getFullYear();   // Replace with your event end date
-      const eventDetails = {
-        title: 'Event Title',      // Replace with your event title
-        location: 'Event Location', // Replace with your event location
-        notes: 'Event Description', // Replace with your event description
+      const startDate = event.datetime.toDate(); // Replace with your event start date
+      const endDate = startDate // Replace with your event end date
+      endDate.setHours(endDate.getHours() + 2);
+      const eventDetails = {     // Replace with your event title
+        location: event.location, // Replace with your event location
       };
       console.log(startDate,endDate,eventDetails)
       await ReactNativeCalendarEvents.saveEvent(eventDetails.title, {
-        startDate,
-        endDate,
-        details: eventDetails, // Ensure that 'details' is defined
+        calendarId: '3',
+        startDate: startDate,
+        endDate: endDate,
+        location: eventDetails.location, // Ensure that 'details' is defined
       });
   
       console.log('Event added to the calendar!');
@@ -372,6 +376,12 @@ const MapScreen = () => {
               source={{ uri: eventsAtSameLocation[currentIndex].image }}
               style={styles.modalImage}
             />
+              <LinearGradient
+                style={styles.modalGradient}
+                colors={gradientColors} // You can adjust the colors as needed
+                start={{ x: 0, y: 1 }} // This makes the gradient go from bottom to top
+                end={{ x: 0, y: 0 }}
+              />
             {eventsAtSameLocation.length > 1 && (
                 <View style={styles.prevnext}>
                   <TouchableOpacity
@@ -432,7 +442,7 @@ const MapScreen = () => {
             </TouchableOpacity>
               <TouchableOpacity
                 style={isDarkMode ? styles.darkaddButton : styles.addButton}
-                onPress={addToCalendar}
+                onPress={() => addToCalendar(eventsAtSameLocation[currentIndex])}
               >
                 <View style={styles.addbuttonContent}>
                   <FontAwesome5 name="calendar-plus" size={27} color={isDarkMode ? "white" : "black"} />
@@ -531,6 +541,12 @@ const styles = StyleSheet.create({
     paddingLeft:15,
     fontSize: 14,
     marginVertical: 10,
+  },
+  modalGradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '20%',
+    top: '40%',
   },
   darkmodalDescription: {
     color: "white",
