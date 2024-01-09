@@ -15,6 +15,7 @@ import { firebaseConfig }from "../firebaseConfig";
 import { collection, addDoc, getDocs } from "firebase/firestore"; 
 import { db } from '../firebaseConfig';
 import {LinearGradient} from 'expo-linear-gradient';
+import { StatusBar } from 'expo-status-bar';
 
 
 const Logo = require('../Images/images.png');
@@ -216,6 +217,12 @@ const MapScreen = () => {
   };
   
   return (
+    <>
+      <StatusBar
+        translucent={true}
+        backgroundColor="transparent"
+        style={isDarkMode ? 'light' : 'dark'}
+    />
     <TouchableWithoutFeedback onPress={handleContainerPress}>
     <View style={styles.container}>
       <MapView
@@ -257,6 +264,12 @@ const MapScreen = () => {
         ))}
       </MapView>
       <View style={styles.header}>
+      <LinearGradient
+                style={styles.topGradient}
+                colors={['transparent','black']} // You can adjust the colors as needed
+                start={{ x: 0, y: 1 }} // This makes the gradient go from bottom to top
+                end={{ x: 0, y: 0 }}
+              />
         <View style={styles.headerLine}>
               <Image
                 source= {require('../Images/images.png')}
@@ -455,12 +468,20 @@ const MapScreen = () => {
       </Modal>
     </View>
     </TouchableWithoutFeedback>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    height:"100%",
     flex: 1,
+  },
+  topGradient:{
+    position: 'absolute',
+    width: '100%',
+    height: '50%',
+    opacity:0.7
   },
   header:{
     width:"100%",
@@ -562,7 +583,7 @@ const styles = StyleSheet.create({
     alignSelf:'center',
   },
   addButton: {
-    backgroundColor: "rgba(0,0,0, 0.1)",
+    backgroundColor: "rgba(0,0,0, 0.04)",
     height:40,
     borderRadius: 40,
     width: 50,
@@ -570,9 +591,9 @@ const styles = StyleSheet.create({
     justifyContent:'center',
   },
   closeButton: {
-    backgroundColor: "rgba(0,0,0, 0.1)",
+    backgroundColor: "rgba(0,0,0, 0.04)",
     justifyContent:'center',
-    borderRadius: 25,
+    borderRadius: 35,
     width: 50,
     alignItems: 'center',
   },

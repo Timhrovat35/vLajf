@@ -6,6 +6,7 @@ import { MotiView, SafeAreaView } from 'moti';
 import { Ionicons, AntDesign, MaterialIcons, FontAwesome  } from '@expo/vector-icons'; 
 import { Switch } from 'react-native';
 import { useTheme } from '../Components/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
@@ -22,6 +23,12 @@ const SettingsScreen = () => {
   };
 
   return (
+    <>
+      <StatusBar
+        translucent={true}
+        backgroundColor="transparent"
+        style={isDarkMode ? 'light' : 'dark'}
+    />
     <SafeAreaView style={isDarkMode ? styles.darkView : styles.normalView}>
     <View style={isDarkMode ? styles.darkheader : styles.header}>
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
@@ -41,15 +48,6 @@ const SettingsScreen = () => {
         </MotiView>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => handleViewChange('notification')}>
-        <MotiView
-          from={{ scale: 1 }}
-          animate={{ scale: selectedView === 'notification' ? 1.2 : 1 }}
-          transition={{ type: 'spring' }}
-        >
-            <Ionicons name="notifications-outline" size={26}  style={{color: selectedView === 'notification' ? 'blue' : isDarkMode ? 'white' : 'black', marginBottom: 20 }}/>
-        </MotiView>
-        </TouchableOpacity>
 
         <TouchableOpacity onPress={() => handleViewChange('terms')}>
         <MotiView
@@ -68,6 +66,7 @@ const SettingsScreen = () => {
       {selectedView === 'terms' && <TermsView />}
     </View>
   </ SafeAreaView>
+  </>
   );
 };
 
@@ -128,7 +127,6 @@ const styles = {
   },
     header: {
       width: "100%",
-      paddingTop: 50,
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: 'white', // Set your desired header background color
@@ -144,7 +142,6 @@ const styles = {
     },
     darkheader:{
       width: "100%",
-      paddingTop: 50,
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: 'black', // Set your desired header background color

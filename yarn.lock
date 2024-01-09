@@ -6678,6 +6678,16 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
+moment-range@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/moment-range/-/moment-range-2.2.0.tgz#b02575778a4ac50a65777939f5c5d757f83fcd85"
+  integrity sha512-nh2IRdxV+wxiQunifqFVNTSzqNej8HMB/rA8Jxb0CAuhftpjJcRnxrbb30iEs2TLMbcjmXCie4Tsx1JnUomH+g==
+
+moment@^2.17.1:
+  version "2.30.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.30.1.tgz#f8c91c07b7a786e30c59926df530b4eac96974ae"
+  integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
+
 moti@^0.26.1:
   version "0.26.1"
   resolved "https://registry.npmjs.org/moti/-/moti-0.26.1.tgz"
@@ -7799,6 +7809,14 @@ react-native-calendar-events@^2.2.0:
   version "2.2.0"
   resolved "https://registry.npmjs.org/react-native-calendar-events/-/react-native-calendar-events-2.2.0.tgz"
   integrity sha512-tNUbhT6Ief0JM4OQzQAaz1ri0+MCcAoHptBcEXCz2g7q3A05pg62PR2Dio4F9t2fCAD7Y2+QggdY1ycAsF3Tsg==
+
+react-native-dates@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-dates/-/react-native-dates-2.0.4.tgz#155780ebdede82504ce42c14d5981219d434b181"
+  integrity sha512-5HAHJSId5X190GGBhkQv0NULuJmcAnWjm+HVgSvOPEOR8huDwiDXZYUU3YTBF2qyYiqzZgcOSwC1w6eBLf39XA==
+  dependencies:
+    moment "^2.17.1"
+    moment-range "2.2.0"
 
 react-native-elements@^3.4.3:
   version "3.4.3"
