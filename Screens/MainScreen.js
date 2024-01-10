@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder ,Animated, Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback, useColorScheme,  } from 'react-native';
+import { Image, Modal, StyleSheet, Text,Keyboard,  PanResponder ,Animated, Easing, TouchableOpacity, View, PermissionsAndroid, ScrollView, TextInput, TouchableWithoutFeedback, useColorScheme, Alert,  } from 'react-native';
 import ReactNativeCalendarEvents from 'react-native-calendar-events';
 import MapView, { Marker } from 'react-native-maps';
 import { AntDesign, Entypo, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons'; 
@@ -16,6 +16,8 @@ import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from '../firebaseConfig';
 import {LinearGradient} from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
+import DateRangePicker from "react-native-daterange-picker";
+import * as Calendar from 'expo-calendar';
 
 
 const Logo = require('../Images/images.png');
@@ -41,11 +43,53 @@ const MapScreen = () => {
   const [filteredEvents, setFilteredEvents] = useState([]);
   const gradientColors = isDarkMode ? ['black', 'transparent'] : ['white', 'transparent'];
 
+  const getCalendarPermission = async () => {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status === 'granted') {
+      // Permission granted, you can now add events to the calendar.
+      return true;
+    } else {
+      // Permission denied, handle accordingly.
+      return false;
+    }
+  };
+  const getDefaultCalendarId = async () => {
+    const defaultCalendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+
+    // Assuming the first calendar is the default, you might want to improve this logic
+    return defaultCalendars.length !== 0 ? defaultCalendars[0].id : null;
+  };
+
+  const addEventToCalendar = async (event) => {
+    const calendarId = await getDefaultCalendarId();
+    if (calendarId && (await getCalendarPermission())) {
+      const eventDetails = {
+        title: event.title,
+        startDate: new Date(),
+        endDate: new Date(new Date().getTime() + 60 * 60 * 1000), // Event duration (1 hour in this example)
+        timeZone: 'GMT',
+        location: event.location,
+      };
+  
+       try {
+      const eventId = await Calendar.createEventAsync(calendarId, eventDetails);
+      console.log(`Event added to calendar with ID: ${eventId}`);
+
+      // Show a success message
+      Alert.alert('Success', 'Event added to calendar successfully!');
+    } catch (error) {
+      console.error('Error adding event to calendar:', error);
+      // Show an error message
+      Alert.alert('Error', 'Failed to add event to calendar. Please try again.');
+    }
+    }
+  };
 
   const toggleButtons = () => {
     setShowDatePicker(!showDatePicker);
     setShowEventTypePicker(!showEventTypePicker);
   };
+
   const getDateString = (datetime) => {
     const day = datetime.getDate().toString().padStart(2, '0');
     const month = (datetime.getMonth() + 1).toString().padStart(2, '0'); // Note: Month is zero-based
@@ -58,23 +102,8 @@ const MapScreen = () => {
     const minutes = datetime.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   };
-  useEffect(() => {
-    checkCalendarPermission();
-    Animated.timing(datePickerY, {
-      toValue: showDatePicker ? 0 : 70,
-      duration: 200,
-      easing: Easing.ease,
-      useNativeDriver: false,
-    }).start();
 
-    // Animate eventTypePicker when showDatePicker changes
-    Animated.timing(eventTypePickerY, {
-      toValue: showDatePicker ? 0 : 70,
-      duration: 200,
-      easing: Easing.ease,
-      useNativeDriver: false,
-    }).start();
-  }, [showDatePicker]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -91,29 +120,6 @@ const MapScreen = () => {
 
     fetchData();
   }, []);
-   const checkCalendarPermission = async () => {
-    try {
-      const status = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
-      );
-
-      setCalendarPermission(status === PermissionsAndroid.RESULTS.GRANTED);
-
-      if (status !== PermissionsAndroid.RESULTS.GRANTED) {
-        // Permission is not granted, request it
-        const permissionStatus = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
-        );
-
-        if (permissionStatus === PermissionsAndroid.RESULTS.GRANTED) {
-          // Permission granted, you can now use the calendar
-          setCalendarPermission(true);
-        }
-      }
-    } catch (err) {
-      console.error('Error checking calendar permission:', err);
-    }
-  };
   const handleSearch = (query) => {
     setSearchQuery(query);
     // Filter events based on the search query
@@ -138,34 +144,6 @@ const MapScreen = () => {
 
     setImageRadius(newImageRadius);
   };
-
-  const addToCalendar = async (event) => {
-    if (!calendarPermission) {
-      console.error('Calendar permission not granted.');
-      return;
-    }
-  
-    try {
-      const startDate = event.datetime.toDate(); // Replace with your event start date
-      const endDate = startDate // Replace with your event end date
-      endDate.setHours(endDate.getHours() + 2);
-      const eventDetails = {     // Replace with your event title
-        location: event.location, // Replace with your event location
-      };
-      console.log(startDate,endDate,eventDetails)
-      await ReactNativeCalendarEvents.saveEvent(eventDetails.title, {
-        calendarId: '3',
-        startDate: startDate,
-        endDate: endDate,
-        location: eventDetails.location, // Ensure that 'details' is defined
-      });
-  
-      console.log('Event added to the calendar!');
-    } catch (error) {
-      console.error('Error adding event to the calendar:', error);
-    }
-  };
-
   const openModal = (event) => {
     const eventsWithSameLocation = eventsFromDb.filter(
       (e) =>
@@ -310,12 +288,7 @@ const MapScreen = () => {
             },
           ]}
           >
-            <TouchableOpacity
-              style={styles.datesButton}
-              /* Add your date picker logic here */
-            >
-              <MaterialIcons name="date-range" size={27} color={isDarkMode ? 'white' : 'black'} />
-            </TouchableOpacity>
+          
           </Animated.View>
           </>
         )}
@@ -454,8 +427,10 @@ const MapScreen = () => {
               <Entypo name="chevron-left" size={35} color={isDarkMode ? "white" : "black"} />
             </TouchableOpacity>
               <TouchableOpacity
+                onPress={() => {
+                  addEventToCalendar(eventsAtSameLocation[currentIndex]); // Call the function when the button is pressed
+                }}
                 style={isDarkMode ? styles.darkaddButton : styles.addButton}
-                onPress={() => addToCalendar(eventsAtSameLocation[currentIndex])}
               >
                 <View style={styles.addbuttonContent}>
                   <FontAwesome5 name="calendar-plus" size={27} color={isDarkMode ? "white" : "black"} />
@@ -820,6 +795,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  datePickerModal:{
+
+  }
 
 });
 

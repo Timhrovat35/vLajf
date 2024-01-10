@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Header, Icon } from 'react-native-elements';
-import { MotiView, SafeAreaView } from 'moti';
+import { MotiView, SafeAreaView, ScrollView } from 'moti';
 import { Ionicons, AntDesign, MaterialIcons, FontAwesome  } from '@expo/vector-icons'; 
 import { Switch } from 'react-native';
 import { useTheme } from '../Components/ThemeContext';
 import { StatusBar } from 'expo-status-bar';
+import { height } from 'react-native-daterange-picker/src/modules';
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
@@ -37,7 +38,7 @@ const SettingsScreen = () => {
         <Text style={isDarkMode ? styles.darkheaderText : styles.headerText}>Home</Text>
     </View>
     <View style={{flexDirection:'row', height: "100%",marginTop:10}}>
-      <View style={{ flexDirection: 'column', padding: 5, height: "100%",marginHorizontal:10, marginTop:20 }}>
+      <View style={{ flexDirection: 'column', padding: 5, height: "100%", width:"10%",alignContent:'center',alignItems:'center'}}>
         <TouchableOpacity onPress={() => handleViewChange('visual')}>
         <MotiView
           from={{ scale: 1 }}
@@ -114,6 +115,51 @@ const TermsView = () => {
     <View style={styles.contentView}>
     <Text style={isDarkMode ? styles.darkcontentHeaderText : styles.contentHeaderText}>Terms of use</Text>
     <View style={styles.contentLine} />
+
+    <ScrollView maxHeight={"80%"} style={{paddingHorizontal:20, marginTop:10}}>
+        <Text style={ isDarkMode ? styles.darktitletext : styles.titletext}>
+              1. Use of the App
+        </Text>
+        <Text style={isDarkMode ? styles.darktermstext : styles.termstext}>
+        a. Search for Events: vLjaf allows users to search for events on a map without the need for user accounts or logins.
+        {'\n'}
+        b. No User Accounts: The App does not require users to create accounts or log in.
+        </Text>
+        <Text style={ isDarkMode ? styles.darktitletext : styles.titletext}>
+        2. User Conduct
+        </Text>
+        <Text style={isDarkMode ? styles.darktermstext : styles.termstext}>
+        a. Responsible Use: Users are expected to use the App responsibly and adhere to any guidelines provided within the App.
+        {'\n'}
+        b. No Unauthorized Access: Users shall not attempt to gain unauthorized access to any part of the App or its related systems.
+        </Text>
+        <Text style={ isDarkMode ? styles.darktitletext : styles.titletext}>
+        3. Intellectual Property
+        </Text>
+        <Text style={isDarkMode ? styles.darktermstext : styles.termstext}>
+        a. Ownership: The App and its content, including but not limited to text, images, and logos, are owned by [Your Company Name] and are protected by intellectual property laws.
+        {'\n'}
+        b. License: Users are granted a limited, non-exclusive, non-transferable license to use the App for its intended purpose.
+        </Text>
+        <Text style={ isDarkMode ? styles.darktitletext : styles.titletext}>
+        4. Privacy
+        </Text>
+        <Text style={isDarkMode ? styles.darktermstext : styles.termstext}>
+        a. No Personal Information: The App does not collect or store personal information about users.
+        </Text>
+        <Text style={ isDarkMode ? styles.darktitletext : styles.titletext}>
+        5. Limitation of Liability
+        </Text>
+        <Text style={isDarkMode ? styles.darktermstext : styles.termstext}>
+        a. No Liability: vLajf shall not be liable for any direct, indirect, incidental, special, or consequential damages arising out of or in any way connected with the use of the App.
+        </Text>
+        <Text style={ isDarkMode ? styles.darktitletext : styles.titletext}>
+        6. Changes to Terms
+        </Text>
+        <Text style={isDarkMode ? styles.darktermstext : styles.termstext}>
+        a. Modification: vLjaf reserves the right to modify or replace these Terms at any time. Your continued use of the App constitutes acceptance of any changes.
+        </Text>
+    </ScrollView>
   </View>
   );
   };
@@ -186,6 +232,26 @@ const styles = {
       darkswitchtext:{
         color: "white",
       },
+      titletext:{
+        fontWeight: 'bold',
+        fontSize:18,
+      },
+      darktitletext:{
+        fontWeight: 'bold',
+        fontSize:18,
+        color:"white"
+      },
+      termstext:{
+        marginTop:5,
+        fontSize:15,
+        marginBottom:10
+      },
+      darktermstext:{
+        marginTop:5,
+        fontSize:15,
+        marginBottom:10,
+        color:"white",
+      }
   };
 
 export default SettingsScreen;
