@@ -65,8 +65,8 @@ const MapScreen = () => {
     if (calendarId && (await getCalendarPermission())) {
       const eventDetails = {
         title: event.title,
-        startDate: new Date(),
-        endDate: new Date(new Date().getTime() + 60 * 60 * 1000), // Event duration (1 hour in this example)
+        startDate: event.datetime.toDate(),
+        endDate: new Date(event.datetime.toDate().getTime() + 60 * 60 * 1000), // Event duration (1 hour in this example)
         timeZone: 'GMT',
         location: event.location,
       };
