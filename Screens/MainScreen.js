@@ -20,7 +20,6 @@ import DateRangePicker from "react-native-daterange-picker";
 import * as Calendar from 'expo-calendar';
 
 
-const Logo = require('../Images/images.png');
 const customMap = require('../customMap.json');
 const customMapDark = require('../customMapDark.json')
 
@@ -250,7 +249,7 @@ const MapScreen = () => {
               />
         <View style={styles.headerLine}>
               <Image
-                source= {require('../Images/images.png')}
+                source= {require('../Images/logo.png')}
                 style={{
                   width: 40,
                   height: 40,
