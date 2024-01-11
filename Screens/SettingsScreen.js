@@ -172,6 +172,7 @@ const styles = {
     backgroundColor: "white",
   },
     header: {
+      paddingTop: "12%",
       width: "100%",
       flexDirection: 'row',
       alignItems: 'center',
@@ -187,6 +188,7 @@ const styles = {
       elevation: 5, // This is for Android
     },
     darkheader:{
+      paddingTop: "10%",
       width: "100%",
       flexDirection: 'row',
       alignItems: 'center',
@@ -217,11 +219,13 @@ const styles = {
         marginTop: 5,
       },
       contentHeaderText: {
-        fontSize: 15,
+        fontSize: 16,
+        fontWeight:'bold'
       },
       darkcontentHeaderText: {
         color: "white",
-        fontSize: 15,
+        fontSize: 16,
+        fontWeight:'bold'
       },
       contentLine: {
         width: 100,

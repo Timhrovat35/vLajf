@@ -41,6 +41,8 @@ const MapScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
   const gradientColors = isDarkMode ? ['black', 'transparent'] : ['white', 'transparent'];
+  const [fontSize, setFontSize] = useState(25); // Default font size
+
 
   const getCalendarPermission = async () => {
     const { status } = await Calendar.requestCalendarPermissionsAsync();
@@ -192,7 +194,6 @@ const MapScreen = () => {
   const handleContainerPress = () => {
     Keyboard.dismiss();
   };
-  
   return (
     <>
       <StatusBar
@@ -308,18 +309,18 @@ const MapScreen = () => {
                     source={{ uri: event.image }}
                     style={styles.searchImage}
                   />
-                  <View>
-                    <Text style={styles.searchResultText}>
-                      {event.title}
-                    </Text>
-                    <View style={{flexDirection:'row'}}>
-                      <Text style={styles.searchDetails}>
-                        {getDateString(event.datetime.toDate())}{', '}
+                  <View style={{maxWidth:"60%"}}>
+                      <Text style={styles.searchResultText} numberOfLines={1} ellipsizeMode="tail">
+                        {event.title}
                       </Text>
-                      <Text style={styles.searchDetails}>
-                        {event.location}
-                      </Text>
-                    </View>
+                      <View style={{flexDirection:'row'}}>
+                        <Text style={styles.searchDetails}>
+                          {getDateString(event.datetime.toDate())}{', '}
+                        </Text>
+                        <Text style={styles.searchDetails} numberOfLines={1} ellipsizeMode="tail">
+                          {event.location}
+                        </Text>
+                      </View>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -384,15 +385,20 @@ const MapScreen = () => {
                   </TouchableOpacity>
                 </View>
               )}
-            <Text style={isDarkMode ? styles.darkmodalTitle : styles.modalTitle}>
-              {eventsAtSameLocation[currentIndex].title}
-            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <Text style={[isDarkMode ? styles.darkmodalDetails : styles.modalDetails,{ fontSize: fontSize }]} numberOfLines={2} ellipsizeMode="tail">
+                {eventsAtSameLocation[currentIndex].title}
+              </Text>
+            </ScrollView>
             <View style={{flexDirection:'row', alignItems:'center', top:10, justifyContent:'space-between'}}>
               <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
                 <Entypo name="location" size={25} color={isDarkMode ? "white" : "black"} />
-                <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails}>
-                  {eventsAtSameLocation[currentIndex].location}{' '}
-                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <Text style={isDarkMode ? styles.darkmodalDetails : styles.modalDetails} numberOfLines={2}   // Set the number of lines you want to display
+                    ellipsizeMode="tail">
+                    {eventsAtSameLocation[currentIndex].location}{' '}
+                  </Text>
+                </ScrollView>
               </View>
               <View style={isDarkMode ? styles.darkline : styles.lightline } />
                 <View style={{alignItems:'center', justifyContent:'center', width:"33%"}}>
@@ -508,14 +514,12 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     paddingLeft:15,
-    fontSize: 25,
     fontWeight: 'bold',
     marginTop: 5,
   },
   darkmodalTitle: {
     color: "white",
     paddingLeft:15,
-    fontSize: 25,
     fontWeight: 'bold',
     marginTop: 5,
   },
@@ -550,7 +554,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   modalButtons: {
-    marginTop:14,
+    marginTop:10,
+    marginBottom:5,
     width:"75%",
     flexDirection: 'row',
     justifyContent:'space-between',
@@ -654,6 +659,9 @@ const styles = StyleSheet.create({
     height:50,
     borderTopLeftRadius:10,
     borderBottomLeftRadius:10,
+  },
+  searchDetails:{
+    width:"50%"
   },
   searchline:{
     flexDirection:'row', 

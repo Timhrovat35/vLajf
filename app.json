@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "vLajf",
-    "slug": "vLajf",
+    "name": "vLjaf",
+    "slug": "vLjaf",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,6 +31,20 @@
       "eas": {
         "projectId": "d0d54c2b-eac3-41fa-9b13-724a8b7193d8"
       }
-    }
+    },
+    "runtimeVersion": {
+      "policy": "nativeVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d0d54c2b-eac3-41fa-9b13-724a8b7193d8"
+    },
+    "plugins": [
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "The app needs to access your calendar."
+        }
+      ]
+    ]
   }
 }
